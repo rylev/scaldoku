@@ -40,5 +40,45 @@ class Table {
     cleanRow.toSet.size == cleanRow.size
   }
 
+  def completeColumn_?(columnNumber: Integer) : Boolean = {
+    val columnSet = column(columnNumber).toSet
+    columnSet.size == 9 && columnSet.min == 1 && columnSet.max == 9
+  }
+
+  def validColumn_?(columnNumber: Integer) : Boolean = {
+    val cleanColumn = column(columnNumber).filter { value => value != 0 }
+    cleanColumn.toSet.size == cleanColumn.size
+  }
+
+  def printBoard() = {
+    board.zip(board.indices).map { column_and_index =>
+      val column = column_and_index._1
+      column.zip(column.indices).map { num_and_index =>
+        print(num_and_index._1)
+        print(" ")
+        if ((num_and_index._2 % 3) == 2) {
+          print("  ")
+          if ((column_and_index._2 % 3) == 2 &&
+               num_and_index._2 == 7)
+            println("")
+        }
+      }
+      println("")
+      if ((column_and_index._2 % 3) == 2)
+        println("")
+    }
+  }
+
   def row(number: Integer) = board.map { column => column(number) }
+  def column(number: Integer) = board(number)
+  def square(number: Integer) = {
+    val x_offset = (number / 3) * 3
+    val y_offset = (number % 3) * 3
+
+    0 to 2 map { a =>
+      0 to 2 map { b =>
+        getValue(x_offset+a, y_offset+b)
+      }
+    }
+  }
 }
