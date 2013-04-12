@@ -1,38 +1,49 @@
 package com.sudoku
 
-class Table {
-  // TODO: at some point we should define something smarter than 0 for empty.
-  var board = 1 to 9 map { _ => 1 to 9 map { _ => 0 } }
+abstract class Cell {
+  val value: Integer
+  override def toString = value.toString
+}
 
-  def height = board.first.length
-  def width = board.length
+class EmptyCell extends Cell {
+  val value = null
+}
 
-  def setValue(x: Integer, y: Integer, value: Integer): Boolean ={
+class FilledCell(val value: Integer) extends Cell
+
+class Table(board: Seq[Seq[Cell]]) {
+  def this() = this(1 to 9 map { _ => 1 to 9 map { _ => new EmptyCell } })
+
+  val boardLayout = board
+
+  val height = board.first.length
+  val width = board.length
+
+  def setValue(x: Integer, y: Integer, value: Integer): Table ={
     (x, y, value) match {
       case (a, b, c) if (0 to 8 contains a) &&
                         (0 to 8 contains b) &&
                         (0 to 9 contains c) => true
-      case _ => return false
+      case _ => return new Table(board)
     }
 
-    board = board.indices map { col_idx =>
+    new Table( board.indices map { col_idx =>
       board(col_idx).indices map { row_idx =>
         if (col_idx == x && row_idx == y)
-          value.intValue()
+          new FilledCell(value)
         else
           board(col_idx)(row_idx)
       }
-    }
-    true
+    })
   }
 
-  def getValue(x: Integer, y: Integer) : Integer = {
-    board(x)(y)
+  def getValue(x: Integer, y: Integer): Integer = {
+    boardLayout(x)(y).value
   }
 
   def completeRow_?(rowNumber: Integer) : Boolean = {
     val rowSet = row(rowNumber).toSet
-    rowSet.size == 9 && rowSet.min == 1 && rowSet.max == 9
+    rowSet.size == 9 && rowSet.minBy { _.value } == 1 && rowSet.maxBy { _.value } == 9
   }
 
   def validRow_?(rowNumber: Integer) : Boolean = {
@@ -42,8 +53,7 @@ class Table {
 
   def completeColumn_?(columnNumber: Integer) : Boolean = {
     val columnSet = column(columnNumber).toSet
-    columnSet.size == 9 && columnSet.min == 1 && columnSet.max == 9
-  }
+    columnSet.size == 9 && (columnSet.minBy { _.value } == 1) && (columnSet.maxBy { _.value } == 9) }
 
   def validColumn_?(columnNumber: Integer) : Boolean = {
     val cleanColumn = column(columnNumber).filter { value => value != 0 }
@@ -69,8 +79,8 @@ class Table {
     }
   }
 
-  def row(number: Integer) = board.map { column => column(number) }
-  def column(number: Integer) = board(number)
+  def row(number: Integer): Seq[Cell] = boardLayout.map { column => column(number) }
+  def column(number: Integer): Seq[Cell] = boardLayout(number)
   def square(number: Integer) = {
     val x_offset = (number / 3) * 3
     val y_offset = (number % 3) * 3

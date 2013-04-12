@@ -5,6 +5,7 @@ import com.sudoku.Table
 
 class TableTest extends FunSuite {
 
+
   test("width") {
     expect(9) { new Table().width }
   }
@@ -15,7 +16,7 @@ class TableTest extends FunSuite {
 
   test("setValue/getValue") {
     val table = new Table
-    expect(true) { table.setValue(x = 5, y = 6, value = 5) }
+    expect(new Table) { table.setValue(x = 5, y = 6, value = 5) }
     expect(5) { table.getValue(x = 5, y = 6) }
   }
 
@@ -95,11 +96,5 @@ class TableTest extends FunSuite {
     expect(thirdShouldEqual) { third }
     expect(fourthShouldEqual) { fourth }
 
-
-//
-//
-//    table.setValue(y = 3, x = 0, value = 0)
-//    table.setValue(y = 2, x = 0, value = 4)
-//    expect(false) { table.validColumn_?(0) }
   }
 }
