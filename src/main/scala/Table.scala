@@ -1,83 +1,92 @@
 package com.sudoku
 
-class Table {
-  // TODO: at some point we should define something smarter than 0 for empty.
-  var board = 1 to 9 map { _ => 1 to 9 map { _ => 0 } }
+abstract class Cell {
+  val value: Integer
+  override def toString = value.toString
+}
 
-  def height = board.first.length
-  def width = board.length
+class EmptyCell extends Cell {
+  val value = null
+}
 
-  def setValue(x: Integer, y: Integer, value: Integer): Boolean ={
+class FilledCell(val value: Integer) extends Cell
+
+class Table(board: Seq[Seq[Cell]]) {
+  def this() = this(1 to 9 map { _ => 1 to 9 map { _ => new EmptyCell } })
+
+  val height = board(0).length
+  val width = board.length
+
+  def setValue(x: Integer, y: Integer, value: Integer): Table = {
     (x, y, value) match {
       case (a, b, c) if (0 to 8 contains a) &&
                         (0 to 8 contains b) &&
                         (0 to 9 contains c) => true
-      case _ => return false
+      case _ => return new Table(board)
     }
 
-    board = board.indices map { col_idx =>
-      board(col_idx).indices map { row_idx =>
-        if (col_idx == x && row_idx == y)
-          value.intValue()
-        else
-          board(col_idx)(row_idx)
-      }
-    }
-    true
+    val newBoard = board.indices map { colIdx =>
+      board(colIdx).indices map { rowIdx =>
+        if (colIdx == x && rowIdx == y) new FilledCell(value)
+        else board(colIdx)(rowIdx) } }
+
+    new Table(newBoard)
   }
 
-  def getValue(x: Integer, y: Integer) : Integer = {
-    board(x)(y)
+  def getValue(x: Integer, y: Integer): Integer = {
+    board(x)(y).value
   }
 
   def completeRow_?(rowNumber: Integer) : Boolean = {
-    val rowSet = row(rowNumber).toSet
-    rowSet.size == 9 && rowSet.min == 1 && rowSet.max == 9
+    val uniqueRow = row(rowNumber).distinct
+    uniqueRow.size == 9 && uniqueRow.minBy { _.value }.value == 1 && uniqueRow.maxBy { _.value }.value == 9
   }
 
   def validRow_?(rowNumber: Integer) : Boolean = {
-    val cleanRow = row(rowNumber).filter { value => value != 0 }
-    cleanRow.toSet.size == cleanRow.size
+    val cleanRowValues = row(rowNumber).filter { _.value != 0 }.map { _.value }
+    cleanRowValues.distinct.size == cleanRowValues.size
   }
 
   def completeColumn_?(columnNumber: Integer) : Boolean = {
-    val columnSet = column(columnNumber).toSet
-    columnSet.size == 9 && columnSet.min == 1 && columnSet.max == 9
+    val uniqueColumn = column(columnNumber).distinct
+    uniqueColumn.size == 9 && (uniqueColumn.minBy { _.value }.value == 1) && (uniqueColumn.maxBy { _.value }.value == 9)
   }
 
   def validColumn_?(columnNumber: Integer) : Boolean = {
-    val cleanColumn = column(columnNumber).filter { value => value != 0 }
-    cleanColumn.toSet.size == cleanColumn.size
+    //println(columnNumber)
+    val cleanColumnValues = column(columnNumber).filter { _.value != 0 }.map { _.value }
+    //println(cleanColumnValues)
+    cleanColumnValues.distinct.size == cleanColumnValues.size
   }
 
   def printBoard() = {
-    board.zip(board.indices).map { column_and_index =>
-      val column = column_and_index._1
-      column.zip(column.indices).map { num_and_index =>
-        print(num_and_index._1)
+    board.zip(board.indices).map { columnAndIndex =>
+      val column = columnAndIndex._1
+      column.zip(column.indices).map { numAndIndex =>
+        print(numAndIndex._1)
         print(" ")
-        if ((num_and_index._2 % 3) == 2) {
+        if ((numAndIndex._2 % 3) == 2) {
           print("  ")
-          if ((column_and_index._2 % 3) == 2 &&
-               num_and_index._2 == 7)
+          if ((columnAndIndex._2 % 3) == 2 &&
+               numAndIndex._2 == 7)
             println("")
         }
       }
       println("")
-      if ((column_and_index._2 % 3) == 2)
+      if ((columnAndIndex._2 % 3) == 2)
         println("")
     }
   }
 
-  def row(number: Integer) = board.map { column => column(number) }
-  def column(number: Integer) = board(number)
+  def row(number: Integer): Seq[Cell] = board.map { column => column(number) }
+  def column(number: Integer): Seq[Cell] = board(number)
   def square(number: Integer) = {
-    val x_offset = (number / 3) * 3
-    val y_offset = (number % 3) * 3
+    val xOffset = (number / 3) * 3
+    val yOffset = (number % 3) * 3
 
     0 to 2 map { a =>
       0 to 2 map { b =>
-        getValue(x_offset+a, y_offset+b)
+        getValue(xOffset+a, yOffset+b)
       }
     }
   }
