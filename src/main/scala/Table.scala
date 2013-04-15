@@ -43,18 +43,20 @@ class Table(board: Seq[Seq[Cell]]) {
   }
 
   def validRow_?(rowNumber: Integer) : Boolean = {
-    val cleanRow = row(rowNumber).filter { cell => cell.value != 0 }
-    cleanRow.distinct.size == cleanRow.size
+    val cleanRowValues = row(rowNumber).filter { _.value != 0 }.map { _.value }
+    cleanRowValues.distinct.size == cleanRowValues.size
   }
 
   def completeColumn_?(columnNumber: Integer) : Boolean = {
-    val uniqueColumn = column(columnNumber).toSet
+    val uniqueColumn = column(columnNumber).distinct
     uniqueColumn.size == 9 && (uniqueColumn.minBy { _.value }.value == 1) && (uniqueColumn.maxBy { _.value }.value == 9)
   }
 
   def validColumn_?(columnNumber: Integer) : Boolean = {
-    val cleanColumn = column(columnNumber).filter { cell => cell.value != 0 }
-    cleanColumn.distinct.size == cleanColumn.size
+    //println(columnNumber)
+    val cleanColumnValues = column(columnNumber).filter { _.value != 0 }.map { _.value }
+    //println(cleanColumnValues)
+    cleanColumnValues.distinct.size == cleanColumnValues.size
   }
 
   def printBoard() = {

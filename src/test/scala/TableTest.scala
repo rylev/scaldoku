@@ -1,100 +1,81 @@
 package com.sudoku.test
 
-import org.scalatest.FunSuite
+import org.scalatest.FlatSpec
+import org.scalatest.matchers.ShouldMatchers
 import com.sudoku.Table
 
-class TableTest extends FunSuite {
+class TableTest extends FlatSpec with ShouldMatchers {
 
-
-  test("width") {
-    expect(9) { new Table().width }
+  "A defaul Table" should "have a width of 9" in {
+    new Table().width should be(9)
   }
 
-  test("height") {
-    expect(9) { new Table().height }
+  it should "have a height of 9" in {
+    new Table().height should be(9)
   }
 
-  test("setValue/getValue") {
+  it can "set and get the Values" in {
     val table = new Table
-    expect(new Table) { table.setValue(x = 5, y = 6, value = 5) }
-    expect(5) { table.getValue(x = 5, y = 6) }
+    val newTable = table.setValue(x = 5, y = 6, value = 5)
+    newTable.getValue(x = 5, y = 6) should be (5)
   }
 
-  test("validates complete rows") {
-    val table = new Table()
-    0 to 8 foreach { num => table.setValue(x = num, y = 0, value = num+1) }
-    expect(true) { table.completeRow_?(0) }
+  it can "validate complete rows" in {
+    val table = new Table
+    val newTable = (0 to 8).foldLeft(table) { (sum, num) =>
+      sum.setValue(x = num, y = 0, value = num + 1) }
+
+    newTable.completeRow_?(0) should be(true)
   }
 
-  test("validates incomplete rows") {
-    val table = new Table()
-    0 to 8 foreach { num => table.setValue(x = num, y = 0, value = 5) }
-    expect(false) { table.completeRow_?(0) }
+  it can "validate incomplete rows" in {
+    val table = new Table
+    val newTable = (0 to 8).foldLeft(table) { (sum, num) =>
+      sum.setValue(x = num, y = 0, value = 5) }
+
+    newTable.completeRow_?(0) should be(false)
   }
 
-  test("validates valid rows") {
-    val table = new Table()
-    0 to 8 foreach { num => table.setValue(x = num, y = 0, value = num+1) }
-    table.setValue(x = 3, y = 0, value = 0)
-    expect(true) { table.validRow_?(0) }
+  it can "validate valid rows" in {
+    val newTable = (0 to 8).foldLeft(new Table()) { (sum, num) =>
+      sum.setValue(x = num, y = 0, value = num + 1) }
+
+    newTable.setValue(x = 3, y = 0, value = 0).validRow_?(0) should be(true)
   }
 
-  test("validates invalid rows") {
-    val table = new Table()
-    0 to 8 foreach { num => table.setValue(x = num, y = 0, value = 5) }
-    table.setValue(x = 3, y = 0, value = 0)
-    table.setValue(x = 2, y = 0, value = 4)
-    expect(false) { table.validRow_?(0) }
+  it can "validate invalid rows" in {
+    val newTable = (0 to 8).foldLeft(new Table()) { (sum, num) =>
+      sum.setValue(x = num, y = 0, value = num + 1) }
+
+    newTable.setValue(x = 2, y = 0, value = 9).setValue(x = 7, y = 0, value = 4).validRow_?(0) should be(false)
   }
 
-  test("validates complete columns") {
-    val table = new Table()
-    0 to 8 foreach { num => table.setValue(x = 0, y = num, value = num+1) }
-    expect(true) { table.completeColumn_?(0) }
+  it can "validate complete columns" in {
+    val newTable = (0 to 8).foldLeft(new Table()) { (sum, num) =>
+      sum.setValue(x = 0, y = num, value = num + 1) }
+
+    newTable.completeColumn_?(0) should be(true)
   }
 
-  test("validates incomplete columns") {
-    val table = new Table()
-    0 to 8 foreach { num => table.setValue(x = 0, y = num, value = 5) }
-    expect(false) { table.completeColumn_?(0) }
+  it can "validate incomplete columns" in {
+    val newTable = (0 to 8).foldLeft(new Table()) { (sum, num) =>
+      sum.setValue(x = 0, y = num, value = 5) }
+
+    newTable.completeColumn_?(0) should be(false)
   }
 
-  test("validates valid columns") {
-    val table = new Table()
-    0 to 8 foreach { num => table.setValue(x = 0, y = num, value = num+1) }
-    table.setValue(y = 3, x = 0, value = 0)
-    expect(true) { table.validColumn_?(0) }
+  it can "validate valid columns" in {
+    val newTable = (0 to 8).foldLeft(new Table()) { (sum, num) =>
+      sum.setValue(x = 0, y = num, value = num + 1) }
+
+    newTable.setValue(x = 0, y = 3, value = 0).validColumn_?(0) should be(true)
   }
 
-  test("validates invalid columns") {
-    val table = new Table()
-    0 to 8 foreach { num => table.setValue(x = 0, y = num, value = 5) }
-    table.setValue(y = 3, x = 0, value = 0)
-    table.setValue(y = 2, x = 0, value = 4)
-    expect(false) { table.validColumn_?(0) }
+  it can "validate invalid columns" in {
+    val newTable = (0 to 8).foldLeft(new Table()) { (sum, num) =>
+      sum.setValue(x = 0, y = num, value = num + 1) }
+
+    newTable.setValue(x = 0, y = 2, value = 9).setValue(x = 0, y = 8, value = 4).validColumn_?(0) should be(false)
   }
 
-  test("gets a square") {
-    val table = new Table()
-    0 to 8 foreach { a =>
-      0 to 8 foreach { b =>
-        val value = if ((a+b) % 2 == 0)
-          a
-        else
-          b
-        table.setValue(x = a, y = b, value = value)
-      }
-    }
-
-    table.printBoard()
-
-    val third = table.square(3)
-    val fourth = table.square(4)
-    val thirdShouldEqual = Vector(Vector(0,3,2), Vector(4,1,4), Vector(0,5,2))
-    val fourthShouldEqual = Vector(Vector(3,4,3), Vector(3,4,5), Vector(5,4,5))
-
-    expect(thirdShouldEqual) { third }
-    expect(fourthShouldEqual) { fourth }
-
-  }
 }
