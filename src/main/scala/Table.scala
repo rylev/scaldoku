@@ -15,56 +15,46 @@ class Cell(val value: Integer) {
   def empty_? : Boolean = value == null
 }
 
-class Square(val boardContents: Seq[Seq[Cell]], val index: Integer) {
-  def complete_? : Boolean = false
-  def valid_? : Boolean = {
-    val cleanSquareCells = square.filter { !_.empty_? }
-    cleanSquareCells.distinct.size == cleanSquareCells.size
+trait Region {
+  val boardContents: Seq[Seq[Cell]]
+  val index: Integer
+  def cells: Seq[Cell]
+
+  def complete_? : Boolean = {
+    val uniqueCells = cells.distinct
+    uniqueCells.size == 9 && (uniqueCells.minBy { _.value }.value == 1) && (uniqueCells.maxBy { _.value }.value == 9)
   }
 
-  private def square : Seq[Cell] = {
-    val xOffset = (index / 3) * 3
-    val yOffset = (index % 3) * 3
+  def valid_? : Boolean = {
+    val nonEmptyCells = cells.filter { !_.empty_? }
+    nonEmptyCells.distinct.size == nonEmptyCells.size
+  }
+}
+
+class Square(val boardContents: Seq[Seq[Cell]], val index: Integer) extends Region {
+  def cells : Seq[Cell] = {
+    val rowOffset = (index / 3) * 3
+    val columnOffset = (index % 3) * 3
 
     (0 to 2 map { a =>
       0 to 2 map { b =>
-        boardContents(xOffset+a)(yOffset+b)
+        boardContents(columnOffset+a)(rowOffset+b)
       }
     }).flatten
   }
 }
 
-class Row(val boardContents: Seq[Seq[Cell]], val index: Integer) {
-  def complete_? : Boolean = {
-    val uniqueRow = row.distinct
-    uniqueRow.size == 9 && uniqueRow.minBy { _.value }.value == 1 && uniqueRow.maxBy { _.value }.value == 9
-  }
-
-  def valid_? : Boolean = {
-    val cleanRowCells = row.filter { !_.empty_? }
-    cleanRowCells.distinct.size == cleanRowCells.size
-  }
-
+class Row(val boardContents: Seq[Seq[Cell]], val index: Integer) extends Region {
   override def toString : String =
-    row.zip(row.indices).foldLeft("") { case (output, (cell, index)) =>
+    cells.zip(cells.indices).foldLeft("") { case (output, (cell, index)) =>
       output + cell.toString + (if ((index % 3) == 2) "  " else " ")
     }
 
-  private def row: Seq[Cell] = boardContents.map { column => column(index) }
+  def cells: Seq[Cell] = boardContents.map { column => column(index) }
 }
 
-class Column(val boardContents: Seq[Seq[Cell]], val index: Integer) {
-  def complete_? : Boolean = {
-    val uniqueColumn = column.distinct
-    uniqueColumn.size == 9 && (uniqueColumn.minBy { _.value }.value == 1) && (uniqueColumn.maxBy { _.value }.value == 9)
-  }
-
-  def valid_? : Boolean = {
-    val cleanColumnCells = column.filter { !_.empty_? }
-    cleanColumnCells.distinct.size == cleanColumnCells.size
-  }
-
-  private def column: Seq[Cell] = boardContents(index)
+class Column(val boardContents: Seq[Seq[Cell]], val index: Integer) extends Region {
+  def cells: Seq[Cell] = boardContents(index)
 }
 
 class Table(val contents: Seq[Seq[Cell]]) {
