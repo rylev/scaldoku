@@ -1,12 +1,23 @@
 package com.sudoku
 
-abstract class Cell {
-  val value: Integer
-  override def toString = value.toString
+class Cell(val value: Integer) {
+  def this() = this(null)
+  override def toString = if (empty_?) "_" else value.toString
+  override def equals(other: Any) : Boolean = {
+    (value, other.asInstanceOf[Cell].value) match {
+      case (null, null) => true
+      case (null, _) => false
+      case (_, null) => false
+      case (a, b) => a == b
+    }
+  }
+  override def hashCode() : Int = if (empty_?) 0 else value.hashCode
+  def empty_? : Boolean = value == null
 }
 
-class EmptyCell extends Cell {
-  val value = null
+class Square(val boardContents: Seq[Seq[Cell]], val index: Integer) {
+  def complete_? : Boolean = false
+  def valid_? : Boolean = false
 }
 
 class Row(val boardContents: Seq[Seq[Cell]], val index: Integer) {
@@ -16,13 +27,13 @@ class Row(val boardContents: Seq[Seq[Cell]], val index: Integer) {
   }
 
   def valid_? : Boolean = {
-    val cleanRowValues = row(index).filter { _.value != 0 }.map { _.value }
-    cleanRowValues.distinct.size == cleanRowValues.size
+    val cleanRowCells = row(index).filter { !_.empty_? }
+    cleanRowCells.distinct.size == cleanRowCells.size
   }
 
-  private def row(number: Integer): Seq[Cell] = boardContents.map { column => column(number) }
+  private def column(number: Integer): Seq[Cell] = boardContents.map { column => column(number) }
 
-  private def column(number: Integer): Seq[Cell] = boardContents(number)
+  private def row(number: Integer): Seq[Cell] = boardContents(number)
 
 }
 
@@ -33,52 +44,55 @@ class Column(val boardContents: Seq[Seq[Cell]], val index: Integer) {
   }
 
   def valid_? : Boolean = {
-    val cleanColumnValues = column(index).filter { _.value != 0 }.map { _.value }
-    cleanColumnValues.distinct.size == cleanColumnValues.size
+    val cleanColumnCells = column(index).filter { !_.empty_? }
+    cleanColumnCells.distinct.size == cleanColumnCells.size
   }
 
-  private def row(number: Integer): Seq[Cell] = boardContents.map { column => column(number) }
+  private def column(number: Integer): Seq[Cell] = boardContents.map { column => column(number) }
 
-  private def column(number: Integer): Seq[Cell] = boardContents(number)
+  private def row(number: Integer): Seq[Cell] = boardContents(number)
 }
 
-class FilledCell(val value: Integer) extends Cell
-
 class Table(contents: Seq[Seq[Cell]]) {
-  def this() = this(1 to 9 map { _ => 1 to 9 map { _ => new EmptyCell } })
+  def this() = this(1 to 9 map { _ => 1 to 9 map { _ => new Cell } })
 
   val height = contents(0).length
   val width = contents.length
   val rows = 0 to 8 map { new Row(contents, _) }
   val columns = 0 to 8 map { new Column(contents, _) }
+  val squares = 0 to 8 map { new Square(contents, _) }
 
-  def setValue(x: Integer, y: Integer, value: Integer): Table = {
-    (x, y, value) match {
-      case (a, b, c) if (0 to 8 contains a) &&
-                        (0 to 8 contains b) &&
-                        (0 to 9 contains c) => true
+  def fillCell(row: Integer, column: Integer, value: Integer): Table = {
+    (row, column, value) match {
+      case (row, column, value) if (0 to 8 contains row) &&
+                                   (0 to 8 contains column) &&
+                                   (0 to 9 contains value) => true
       case _ => return new Table(contents)
     }
 
     val newContents = contents.indices map { colIdx =>
       contents(colIdx).indices map { rowIdx =>
-        if (colIdx == x && rowIdx == y) new FilledCell(value)
+        if (colIdx == column && rowIdx == row) new Cell(value)
         else contents(colIdx)(rowIdx) } }
 
     new Table(newContents)
   }
 
-  def getValue(x: Integer, y: Integer): Integer = {
-    contents(x)(y).value
+  def getCell(row: Integer, column: Integer): Cell = {
+    contents(column)(row)
   }
 
-   def completeRow_?(rowNumber: Integer) : Boolean = rows(rowNumber) complete_?
+  def completeRow_?(rowNumber: Integer) : Boolean = rows(rowNumber) complete_?
 
-   def validRow_?(rowNumber: Integer) : Boolean = rows(rowNumber) valid_?
+  def validRow_?(rowNumber: Integer) : Boolean = rows(rowNumber) valid_?
 
-   def completeColumn_?(columnNumber: Integer) : Boolean = columns(columnNumber) complete_?
+  def completeColumn_?(columnNumber: Integer) : Boolean = columns(columnNumber) complete_?
 
-   def validColumn_?(columnNumber: Integer) : Boolean = columns(columnNumber) valid_?
+  def validColumn_?(columnNumber: Integer) : Boolean = columns(columnNumber) valid_?
+
+  def completeSquare_?(squareNumber: Integer) : Boolean = squares(squareNumber) complete_?
+
+  def validSquare_?(squareNumber: Integer) : Boolean = squares(squareNumber) valid_?
 
   def printContents() = {
     contents.zip(contents.indices).map { columnAndIndex =>
@@ -107,7 +121,7 @@ class Table(contents: Seq[Seq[Cell]]) {
 
     0 to 2 map { a =>
       0 to 2 map { b =>
-        getValue(xOffset+a, yOffset+b)
+        getCell(xOffset+a, yOffset+b)
       }
     }
   }
