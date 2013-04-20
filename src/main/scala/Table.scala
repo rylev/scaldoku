@@ -67,6 +67,9 @@ class Table(val contents: Seq[Seq[Cell]]) {
   private val columns = 0 to 8 map { new Column(contents, _) }
   private val squares = 0 to 8 map { new Square(contents, _) }
 
+  def valid_? : Boolean =
+    rows.forall(_.valid_?) && columns.forall(_.valid_?) && squares.forall(_.valid_?)
+
   def fillCell(row: Integer, column: Integer, value: Integer): Table = {
     (row, column, value) match {
       case (row, column, value) if (0 to 8 contains row) &&
