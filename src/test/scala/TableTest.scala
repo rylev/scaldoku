@@ -107,10 +107,14 @@ class TableTest extends FlatSpec with ShouldMatchers {
   }
 
   it can "validate incomplete squares" in {
-    // val table = (0 to 8).foldLeft(new Table()) { (sum, num) =>
-    //   sum.fillCell(column = num, row = 0, value = 5) }
+    val table = (0 to 8).foldLeft(new Table()) { (sum, num) =>
+      sum.fillCell(column = num, row = 0, value = ((num + 1) % 9) + 1).
+          fillCell(column = num, row = 1, value = ((num + 4) % 9) + 1).
+          fillCell(column = num, row = 2, value = 0 )}
 
-    // table.completeRow_?(0) should be(false)
+    table.completeSquare_?(0) should be(false)
+    table.completeSquare_?(1) should be(false)
+    table.completeSquare_?(2) should be(false)
   }
 
   it can "convert itself to String" in {
