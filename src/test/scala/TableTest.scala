@@ -37,6 +37,30 @@ class TableTest extends FlatSpec with ShouldMatchers {
     table.valid_? should be(false)
   }
 
+  it can "validate itself when it is complete" in {
+    val table = (0 to 8).foldLeft(new Table()) { (sum, num) =>
+     sum.fillCell(column = num, row = 0, value = ((num + 1) % 9) + 1).
+         fillCell(column = num, row = 1, value = ((num + 4) % 9) + 1).
+         fillCell(column = num, row = 2, value = ((num + 7) % 9) + 1).
+         fillCell(column = num, row = 3, value = ((num + 2) % 9) + 1).
+         fillCell(column = num, row = 4, value = ((num + 5) % 9) + 1).
+         fillCell(column = num, row = 5, value = ((num + 8) % 9) + 1).
+         fillCell(column = num, row = 6, value = ((num + 3) % 9) + 1).
+         fillCell(column = num, row = 7, value = ((num + 6) % 9) + 1).
+         fillCell(column = num, row = 8, value = ((num + 9) % 9) + 1) }
+
+    table.complete_? should be(true)
+  }
+
+  it can "validate itself when it is incomplete" in {
+    val table = (0 to 8).foldLeft(new Table()) { (sum, num) =>
+     sum.fillCell(column = num, row = 0, value = ((num + 1) % 9) + 1).
+         fillCell(column = num, row = 1, value = ((num + 4) % 9) + 1).
+         fillCell(column = num, row = 2, value = ((num + 7) % 9) + 1) }
+
+    table.complete_? should be(false)
+  }
+
   it can "validate complete columns" in {
     val table = (0 to 8).foldLeft(new Table) { (sum, num) =>
       sum.fillCell(column = 0, row = num, value = num + 1) }

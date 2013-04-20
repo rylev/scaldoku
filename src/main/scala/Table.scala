@@ -70,6 +70,9 @@ class Table(val contents: Seq[Seq[Cell]]) {
   def valid_? : Boolean =
     rows.forall(_.valid_?) && columns.forall(_.valid_?) && squares.forall(_.valid_?)
 
+  def complete_? : Boolean =
+    rows.forall(_.complete_?) && columns.forall(_.complete_?) && squares.forall(_.complete_?)
+
   def fillCell(row: Integer, column: Integer, value: Integer): Table = {
     (row, column, value) match {
       case (row, column, value) if (0 to 8 contains row) &&
