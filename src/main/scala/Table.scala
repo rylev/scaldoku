@@ -26,6 +26,22 @@ class Row(val boardContents: Seq[Seq[Cell]], val index: Integer) {
 
 }
 
+class Column(val boardContents: Seq[Seq[Cell]], val index: Integer) {
+  def complete_? : Boolean = {
+    val uniqueColumn = column(index).distinct
+    uniqueColumn.size == 9 && (uniqueColumn.minBy { _.value }.value == 1) && (uniqueColumn.maxBy { _.value }.value == 9)
+  }
+
+  def valid_? : Boolean = {
+    val cleanColumnValues = column(index).filter { _.value != 0 }.map { _.value }
+    cleanColumnValues.distinct.size == cleanColumnValues.size
+  }
+
+  private def row(number: Integer): Seq[Cell] = boardContents.map { column => column(number) }
+
+  private def column(number: Integer): Seq[Cell] = boardContents(number)
+}
+
 class FilledCell(val value: Integer) extends Cell
 
 class Table(contents: Seq[Seq[Cell]]) {
@@ -34,6 +50,7 @@ class Table(contents: Seq[Seq[Cell]]) {
   val height = contents(0).length
   val width = contents.length
   val rows = 0 to 8 map { new Row(contents, _) }
+  val columns = 0 to 8 map { new Column(contents, _) }
 
   def setValue(x: Integer, y: Integer, value: Integer): Table = {
     (x, y, value) match {
@@ -59,15 +76,9 @@ class Table(contents: Seq[Seq[Cell]]) {
 
    def validRow_?(rowNumber: Integer) : Boolean = rows(rowNumber) valid_?
 
-  def completeColumn_?(columnNumber: Integer) : Boolean = {
-    val uniqueColumn = column(columnNumber).distinct
-    uniqueColumn.size == 9 && (uniqueColumn.minBy { _.value }.value == 1) && (uniqueColumn.maxBy { _.value }.value == 9)
-  }
+   def completeColumn_?(columnNumber: Integer) : Boolean = columns(columnNumber) complete_?
 
-  def validColumn_?(columnNumber: Integer) : Boolean = {
-    val cleanColumnValues = column(columnNumber).filter { _.value != 0 }.map { _.value }
-    cleanColumnValues.distinct.size == cleanColumnValues.size
-  }
+   def validColumn_?(columnNumber: Integer) : Boolean = columns(columnNumber) valid_?
 
   def printContents() = {
     contents.zip(contents.indices).map { columnAndIndex =>
