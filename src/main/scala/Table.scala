@@ -67,14 +67,15 @@ class Column(val boardContents: Seq[Seq[Cell]], val index: Integer) {
   private def column: Seq[Cell] = boardContents(index)
 }
 
-class Table(contents: Seq[Seq[Cell]]) {
+class Table(val contents: Seq[Seq[Cell]]) {
   def this() = this(1 to 9 map { _ => 1 to 9 map { _ => new Cell } })
 
   val height = contents(0).length
   val width = contents.length
-  val rows = 0 to 8 map { new Row(contents, _) }
-  val columns = 0 to 8 map { new Column(contents, _) }
-  val squares = 0 to 8 map { new Square(contents, _) }
+
+  private val rows = 0 to 8 map { new Row(contents, _) }
+  private val columns = 0 to 8 map { new Column(contents, _) }
+  private val squares = 0 to 8 map { new Square(contents, _) }
 
   def fillCell(row: Integer, column: Integer, value: Integer): Table = {
     (row, column, value) match {
@@ -112,18 +113,4 @@ class Table(contents: Seq[Seq[Cell]]) {
     rows.zip(rows.indices).foldLeft("") { case (output, (row, index)) =>
       output + row.toString + (if ((index % 3) == 2) "\n\n" else "\n")
     }
-
-
-  def row(number: Integer): Seq[Cell] = contents.map { column => column(number) }
-  def column(number: Integer): Seq[Cell] = contents(number)
-  def square(number: Integer) = {
-    val xOffset = (number / 3) * 3
-    val yOffset = (number % 3) * 3
-
-    0 to 2 map { a =>
-      0 to 2 map { b =>
-        getCell(xOffset+a, yOffset+b)
-      }
-    }
-  }
 }
