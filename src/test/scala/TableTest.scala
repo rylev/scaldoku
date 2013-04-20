@@ -94,4 +94,17 @@ class TableTest extends FlatSpec with ShouldMatchers {
 
     table.validSquare_?(0) should be(false)
   }
+
+  it can "convert itself to String" in {
+     val table = new Table().
+      fillCell(column = 0, row = 0, value = 1).
+      fillCell(column = 1, row = 0, value = 2).
+      fillCell(column = 2, row = 0, value = 3).
+      fillCell(column = 0, row = 1, value = 4).
+      fillCell(column = 1, row = 1, value = 5).
+      fillCell(column = 2, row = 1, value = 6)
+
+     table.toString() should startWith("1 2 3  _ _ _  _ _ _")
+     table.toString() should include("4 5 6  _ _ _  _ _ _")
+  }
 }
