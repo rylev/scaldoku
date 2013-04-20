@@ -21,58 +21,58 @@ class TableTest extends FlatSpec with ShouldMatchers {
 
   it can "validate complete columns" in {
     val table = (0 to 8).foldLeft(new Table) { (sum, num) =>
-      sum.fillCell(column = num, row = 0, value = num + 1) }
+      sum.fillCell(column = 0, row = num, value = num + 1) }
 
     table.completeColumn_?(0) should be(true)
   }
 
   it can "validate incomplete columns" in {
     val table = (0 to 8).foldLeft(new Table) { (sum, num) =>
-      sum.fillCell(column = num, row = 0, value = 5) }
+      sum.fillCell(column = 0, row = num, value = 5) }
 
     table.completeColumn_?(0) should be(false)
   }
 
   it can "validate valid columns" in {
     val table = (0 to 8).foldLeft(new Table()) { (sum, num) =>
-      sum.fillCell(column = num, row = 0, value = num + 1) }
+      sum.fillCell(column = 0, row = num, value = num + 1) }
 
-    table.fillCell(column = 3, row = 0, value = 0).validColumn_?(0) should be(true)
+    table.fillCell(column = 0, row = 3, value = 0).validColumn_?(0) should be(true)
   }
 
   it can "validate invalid columns" in {
     val table = (0 to 8).foldLeft(new Table()) { (sum, num) =>
-      sum.fillCell(column = num, row = 0, value = num + 1) }
+      sum.fillCell(column = 0, row = num, value = num + 1) }
 
-    table.fillCell(column = 2, row = 0, value = 9).fillCell(column = 7, row = 0, value = 4).validColumn_?(0) should be(false)
+    table.fillCell(column = 0, row = 2, value = 9).fillCell(column = 0, row = 7, value = 4).validColumn_?(0) should be(false)
   }
 
   it can "validate complete rows" in {
     val table = (0 to 8).foldLeft(new Table()) { (sum, num) =>
-      sum.fillCell(column = 0, row = num, value = num + 1) }
+      sum.fillCell(column = num, row = 0, value = num + 1) }
 
     table.completeRow_?(0) should be(true)
   }
 
   it can "validate incomplete rows" in {
     val table = (0 to 8).foldLeft(new Table()) { (sum, num) =>
-      sum.fillCell(column = 0, row = num, value = 5) }
+      sum.fillCell(column = num, row = 0, value = 5) }
 
     table.completeRow_?(0) should be(false)
   }
 
   it can "validate valid rows" in {
     val table = (0 to 8).foldLeft(new Table()) { (sum, num) =>
-      sum.fillCell(column = 0, row = num, value = num + 1) }
+      sum.fillCell(column = num, row = 0, value = num + 1) }
 
-    table.fillCell(column = 0, row = 3, value = 0).validRow_?(0) should be(true)
+    table.fillCell(column = 3, row = 0, value = 0).validRow_?(0) should be(true)
   }
 
   it can "validate invalid rows" in {
     val table = (0 to 8).foldLeft(new Table()) { (sum, num) =>
-      sum.fillCell(column = 0, row = num, value = num + 1) }
+      sum.fillCell(column = num, row = 0, value = num + 1) }
 
-    table.fillCell(column = 0, row = 2, value = 9).fillCell(column = 0, row = 8, value = 4).validRow_?(0) should be(false)
+    table.fillCell(column = 2, row = 0, value = 9).fillCell(column = 8, row = 0, value = 4).validRow_?(0) should be(false)
   }
 
   it can "validate valid squares" in {
@@ -89,9 +89,9 @@ class TableTest extends FlatSpec with ShouldMatchers {
 
   it can "validate invalid squares" in {
     val table = (0 to 8).foldLeft(new Table()) { (sum, num) =>
-      sum.fillCell(column = 0, row = num, value = num + 1) }
+      sum.fillCell(column = num, row = 0, value = num + 1).
+          fillCell(column = num, row = 1, value = num + 1) }
 
-    table.fillCell(column = 0, row = 2, value = 9).fillCell(column = 0, row = 8, value = 4).validSquare_?(0) should be(false)
+    table.validSquare_?(0) should be(false)
   }
-
 }

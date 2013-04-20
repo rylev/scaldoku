@@ -17,7 +17,21 @@ class Cell(val value: Integer) {
 
 class Square(val boardContents: Seq[Seq[Cell]], val index: Integer) {
   def complete_? : Boolean = false
-  def valid_? : Boolean = false
+  def valid_? : Boolean = {
+    val cleanSquareCells = square.filter { !_.empty_? }
+    cleanSquareCells.distinct.size == cleanSquareCells.size
+  }
+
+  private def square : Seq[Cell] = {
+    val xOffset = (index / 3) * 3
+    val yOffset = (index % 3) * 3
+
+    (0 to 2 map { a =>
+      0 to 2 map { b =>
+        boardContents(xOffset+a)(yOffset+b)
+      }
+    }).flatten
+  }
 }
 
 class Row(val boardContents: Seq[Seq[Cell]], val index: Integer) {
@@ -31,10 +45,7 @@ class Row(val boardContents: Seq[Seq[Cell]], val index: Integer) {
     cleanRowCells.distinct.size == cleanRowCells.size
   }
 
-  private def column(number: Integer): Seq[Cell] = boardContents.map { column => column(number) }
-
-  private def row(number: Integer): Seq[Cell] = boardContents(number)
-
+  private def row(number: Integer): Seq[Cell] = boardContents.map { column => column(number) }
 }
 
 class Column(val boardContents: Seq[Seq[Cell]], val index: Integer) {
@@ -48,9 +59,7 @@ class Column(val boardContents: Seq[Seq[Cell]], val index: Integer) {
     cleanColumnCells.distinct.size == cleanColumnCells.size
   }
 
-  private def column(number: Integer): Seq[Cell] = boardContents.map { column => column(number) }
-
-  private def row(number: Integer): Seq[Cell] = boardContents(number)
+  private def column(number: Integer): Seq[Cell] = boardContents(number)
 }
 
 class Table(contents: Seq[Seq[Cell]]) {
